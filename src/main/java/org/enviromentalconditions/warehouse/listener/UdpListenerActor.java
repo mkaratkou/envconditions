@@ -28,29 +28,17 @@ public class UdpListenerActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder()
-                .match(
-                        Udp.Bound.class,
-                        bound -> getContext().become(ready(getSender())))
-                .build();
+        return receiveBuilder().match(Udp.Bound.class, bound -> getContext().become(ready(getSender()))).build();
     }
 
     private Receive ready(final ActorRef socket) {
-        return receiveBuilder()
-                .match(
-                        Udp.Received.class,
-                        r -> {
-                            socket.tell(UdpMessage.send(r.data(), r.sender()), getSelf());
-                            String utf8String = r.data().decodeString(StandardCharsets.UTF_8); // parse data etc., e.g. using PipelineStage
-                            String message = String.format("%s; timestamp=%d", utf8String, System.currentTimeMillis());
-                            delegateRef.tell(message, getSelf());
-                        })
-                .matchEquals(
-                        UdpMessage.unbind(),
-                        message -> socket.tell(message, getSelf()))
-                .match(
-                        Udp.Unbound.class,
-                        message -> getContext().stop(getSelf()))
-                .build();
+        return receiveBuilder().match(Udp.Received.class, r -> {
+            socket.tell(UdpMessage.send(r.data(), r.sender()), getSelf());
+            String utf8String = r.data().decodeString(StandardCharsets.UTF_8); // parse data etc., e.g. using
+                                                                               // PipelineStage
+            String message = String.format("%s; timestamp=%d", utf8String, System.currentTimeMillis());
+            delegateRef.tell(message, getSelf());
+        }).matchEquals(UdpMessage.unbind(), message -> socket.tell(message, getSelf()))
+                .match(Udp.Unbound.class, message -> getContext().stop(getSelf())).build();
     }
 }

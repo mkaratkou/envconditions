@@ -27,7 +27,6 @@ public class SensorActor extends AbstractActor {
 
     private final String sensorId;
     private final SensorType sensorType;
-//    private SensorReading sensorReading; - move to state if we'd like to use persistence?
     private MqttConnectionSettings connectionSettings;
     private String mqttTopic;
     private final ActorMaterializer materializer;
@@ -49,29 +48,23 @@ public class SensorActor extends AbstractActor {
         this.mqttTopic = config.getString(ConfigPath.MQTT_TOPIC.forSensorType(sensorType));
         String brokerAddress = config.getString(ConfigPath.BROKER_ADDRESS.forSensorType(sensorType));
         String clientId = String.format("%s-sensor-subscriber-client", sensorType.getValue());
-        connectionSettings =
-                MqttConnectionSettings.create(brokerAddress,
-                                clientId,
-                                new MemoryPersistence()
-                        )
-                        .withCleanSession(true);
+        connectionSettings = MqttConnectionSettings.create(brokerAddress, clientId, new MemoryPersistence())
+                .withCleanSession(true);
     }
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder()
-                .match(SensorReading.class, reading -> {
-                    log.debug("Sensor >>> Publishing to MQTT Topic={} for sensorId={}, value={}", mqttTopic, sensorId, reading.value());
-//                    this.sensorReading = reading;
+        return receiveBuilder().match(SensorReading.class, reading -> {
+            log.debug("Sensor >>> Publishing to MQTT Topic={} for sensorId={}, value={}", mqttTopic, sensorId,
+                    reading.value());
 
-                    MqttMessage mqttMessage = MqttMessage.create(mqttTopic, MqttUtils.createPayload(reading))
-                            .withQos(MqttQoS.atLeastOnce())
-                            .withRetained(true);
+            MqttMessage mqttMessage = MqttMessage.create(mqttTopic, MqttUtils.createPayload(reading))
+                    .withQos(MqttQoS.atLeastOnce()).withRetained(true);
 
-                    Sink<MqttMessage, CompletionStage<Done>> mqttSink =
-                            MqttSink.create(connectionSettings, MqttQoS.atLeastOnce());
-                    Source.from(Collections.singletonList(mqttMessage)).runWith(mqttSink, materializer);
-                }).build();
+            Sink<MqttMessage, CompletionStage<Done>> mqttSink = MqttSink.create(connectionSettings,
+                    MqttQoS.atLeastOnce());
+            Source.from(Collections.singletonList(mqttMessage)).runWith(mqttSink, materializer);
+        }).build();
     }
 
 }

@@ -20,9 +20,7 @@ import static org.enviromentalconditions.AppNames.WAREHOUSE_SERVICE;
 import static org.enviromentalconditions.warehouse.ConfigPath.UDP_HOST;
 import static org.enviromentalconditions.warehouse.ConfigPath.UDP_PORT;
 
-
 public class AppServiceMain {
-
 
     private static final Logger logger = LoggerFactory.getLogger(AppServiceMain.class);
 
@@ -57,13 +55,16 @@ public class AppServiceMain {
         createSensorListenerAndManager(system, config, SensorType.HUMIDITY);
     }
 
-    private static void createSensorListenerAndManager(ActorSystem system, Config config, SensorType sensorType) throws UnknownHostException {
-        ActorRef sensorManagerRef = system.actorOf(Props.create(SensorManager.class, sensorType), String.format("%sSensorManager", sensorType.getValue()));
+    private static void createSensorListenerAndManager(ActorSystem system, Config config, SensorType sensorType)
+            throws UnknownHostException {
+        ActorRef sensorManagerRef = system.actorOf(Props.create(SensorManager.class, sensorType),
+                String.format("%sSensorManager", sensorType.getValue()));
 
         String udpHostName = config.getString(UDP_HOST.forSensorType(sensorType));
         String host = InetAddress.getByName(udpHostName).getHostAddress();
-        system.actorOf(UdpListenerActor.props(host,
-                config.getInt(UDP_PORT.forSensorType(sensorType)), sensorManagerRef), String.format("%sUdpListener", sensorType.getValue()));
+        system.actorOf(
+                UdpListenerActor.props(host, config.getInt(UDP_PORT.forSensorType(sensorType)), sensorManagerRef),
+                String.format("%sUdpListener", sensorType.getValue()));
     }
 
     private static void initMonitoringService(ActorSystem system) {

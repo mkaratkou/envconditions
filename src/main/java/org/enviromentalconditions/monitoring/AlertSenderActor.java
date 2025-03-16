@@ -23,13 +23,12 @@ public class AlertSenderActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder()
-                .match(SensorReading.class, this::handleMessage)
-                .build();
+        return receiveBuilder().match(SensorReading.class, this::handleMessage).build();
     }
 
     private void handleMessage(SensorReading sensorReading) {
-        log.warning("SensorId={} of type='{}' has received reading of value={} which exceeded the threshold; reading timestamp={}. ",
+        log.warning(
+                "SensorId={} of type='{}' has received reading of value={} which exceeded the threshold; reading timestamp={}. ",
                 sensorReading.sensorId(), sensorReading.sensorType().getValue(), sensorReading.value(),
                 Instant.ofEpochMilli(sensorReading.timestamp()).atZone(ZONE_ID).format(FORMATTER));
     }

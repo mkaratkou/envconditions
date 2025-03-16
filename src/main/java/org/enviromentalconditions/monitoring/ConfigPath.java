@@ -6,8 +6,7 @@ import java.text.MessageFormat;
 
 public enum ConfigPath {
 
-    MQTT_TOPIC("monitoring-service.{0}.mqtt.topic"),
-    BROKER_ADDRESS("monitoring-service.{0}.mqtt.brokerAddress"),
+    MQTT_TOPIC("monitoring-service.{0}.mqtt.topic"), BROKER_ADDRESS("monitoring-service.{0}.mqtt.brokerAddress"),
     THRESHOLD("monitoring-service.{0}.threshold");
 
     private final String pattern;

@@ -1,9 +1,7 @@
 package org.enviromentalconditions.warehouse.sensor;
 
 public enum SensorType {
-    TEMPERATURE("temperature"),
-    HUMIDITY("humidity"),
-    ;
+    TEMPERATURE("temperature"), HUMIDITY("humidity"),;
 
     private final String value;
 

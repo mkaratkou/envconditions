@@ -45,14 +45,13 @@ public class MonitorActor extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder()
-                .match(MqttMessage.class, this::handleMessage)
-                .match(SenderTerminated.class, this::onSenderTerminated)
-                .build();
+        return receiveBuilder().match(MqttMessage.class, this::handleMessage)
+                .match(SenderTerminated.class, this::onSenderTerminated).build();
     }
 
     private void onSenderTerminated(SenderTerminated senderTerminated) {
-        log.debug("Sender={} with sensorId={} has been terminated", senderTerminated.alertSenderRef, senderTerminated.sensorId);
+        log.debug("Sender={} with sensorId={} has been terminated", senderTerminated.alertSenderRef,
+                senderTerminated.sensorId);
         sensorIdToAlertSenderRefMap.remove(senderTerminated.sensorId);
     }
 
@@ -60,14 +59,14 @@ public class MonitorActor extends AbstractActor {
         SensorReading reading = MqttUtils.extractMessagePayload(mqttMessage, SensorReading.class);
         ActorContext context = getContext();
 
-        log.debug("Values received by {} sensorId={}, sensorValue={}", sensorType.getValue(), reading.sensorId(), reading.value());
+        log.debug("Values received by {} sensorId={}, sensorValue={}", sensorType.getValue(), reading.sensorId(),
+                reading.value());
 
         if (reading.value() > threshold) {
             log.debug("Value={} has exceeded threshold={}", reading.value(), threshold);
             ActorRef actorRef = sensorIdToAlertSenderRefMap.computeIfAbsent(reading.sensorId(), sensorId -> {
                 log.debug("Finding actor for sensorId={} ", sensorId);
-                ActorRef r = getContext().actorOf(
-                        AlertSenderActor.props(),
+                ActorRef r = getContext().actorOf(AlertSenderActor.props(),
                         String.format("%sAlertSenderActor-%s", sensorType.getValue(), sensorId));
                 getContext().watchWith(r, new SenderTerminated(r, sensorId));
                 return r;

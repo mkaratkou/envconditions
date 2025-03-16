@@ -6,10 +6,8 @@ import java.text.MessageFormat;
 
 public enum ConfigPath {
 
-    UDP_HOST("warehouse-service.{0}.udp.host"),
-    UDP_PORT("warehouse-service.{0}.udp.port"),
-    MQTT_TOPIC("warehouse-service.{0}.mqtt.topic"),
-    BROKER_ADDRESS("warehouse-service.{0}.mqtt.brokerAddress");
+    UDP_HOST("warehouse-service.{0}.udp.host"), UDP_PORT("warehouse-service.{0}.udp.port"),
+    MQTT_TOPIC("warehouse-service.{0}.mqtt.topic"), BROKER_ADDRESS("warehouse-service.{0}.mqtt.brokerAddress");
 
     private final String pattern;
 

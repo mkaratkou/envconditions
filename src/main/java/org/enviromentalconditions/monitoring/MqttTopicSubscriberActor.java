@@ -64,28 +64,21 @@ public class MqttTopicSubscriberActor extends AbstractActor {
                 String.format("%sMonitor", sensorType.getValue()));
 
         // Configure MQTT connection using only Alpakka's API
-        MqttConnectionSettings connectionSettings = MqttConnectionSettings.create(
-                this.brokerAddress,
-                this.subscriberClientId,
-                new MemoryPersistence()
-        ).withCleanSession(false);  // For session persistence
+        MqttConnectionSettings connectionSettings = MqttConnectionSettings
+                .create(this.brokerAddress, this.subscriberClientId, new MemoryPersistence()).withCleanSession(false);
 
         // Configure subscriptions with at-least-once QoS
-        MqttSubscriptions subscriptions = MqttSubscriptions.create(
-                this.mqttTopic, MqttQoS.atLeastOnce()
-        );
+        MqttSubscriptions subscriptions = MqttSubscriptions.create(this.mqttTopic, MqttQoS.atLeastOnce());
 
         // Use Alpakka's MQTT Source with acknowledgment
-        MqttSource.atLeastOnce(connectionSettings, subscriptions, BUFFER_SIZE)
-                .mapAsync(PARALLELISM, messageWithAck -> {
-                    // Send to actor and get future result
-                    CompletionStage<Done> processingDone = askActor(alertManager, messageWithAck.message());
+        MqttSource.atLeastOnce(connectionSettings, subscriptions, BUFFER_SIZE).mapAsync(PARALLELISM, messageWithAck -> {
+            // Send to actor and get future result
+            CompletionStage<Done> processingDone = askActor(alertManager, messageWithAck.message());
 
-                    // When processing completes, acknowledge the message
-                    return processingDone.thenCompose(done ->
-                            messageWithAck.ack().thenApply(ackDone -> messageWithAck.message()));
-                })
-                .runWith(Sink.foreach(m -> log.debug("Processed and acknowledged for topic={}.", m.topic())), materializer);
+            // When processing completes, acknowledge the message
+            return processingDone
+                    .thenCompose(done -> messageWithAck.ack().thenApply(ackDone -> messageWithAck.message()));
+        }).runWith(Sink.foreach(m -> log.debug("Processed and acknowledged for topic={}.", m.topic())), materializer);
     }
 
     private static CompletionStage<Done> askActor(ActorRef actor, MqttMessage message) {
@@ -95,11 +88,9 @@ public class MqttTopicSubscriberActor extends AbstractActor {
         return future;
     }
 
-
     @Override
     public Receive createReceive() {
-        return receiveBuilder()
-                .build();
+        return receiveBuilder().build();
     }
 
 }
