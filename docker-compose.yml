@@ -1,0 +1,38 @@
+services:
+  warehouse:
+    image: mkaratkou/envconditions
+    ports:
+      - "3344-3346:3344/udp"
+      - "3355-3357:3355/udp"
+    environment:
+      MQTT_IP: mqttbroker
+      MQTT_PORT: 1883
+      ROLE: warehouse
+    deploy:
+      replicas: 3
+    networks:
+      - akka-env-conditions
+    command:  java -jar ./app.jar warehousesvc
+  monitoring:
+    image: mkaratkou/envconditions
+    container_name: monitoring
+    environment:
+      MQTT_IP: mqttbroker
+      MQTT_PORT: 1883
+      ROLE: monitoring
+    networks:
+      - akka-env-conditions
+    command:  java -jar ./app.jar monitoringsvc
+  mqttbroker:
+    image: eclipse-mosquitto
+    hostname: mosquitto
+    container_name: mosquitto
+    ports:
+      - "1883:1883" # Listen port
+      - "9001:9001" # Websocket port
+    command: "mosquitto -c /mosquitto-no-auth.conf"
+    networks:
+      - akka-env-conditions
+networks:
+  akka-env-conditions:
+    driver: bridge
