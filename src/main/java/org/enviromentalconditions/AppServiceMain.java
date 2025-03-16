@@ -47,6 +47,9 @@ public class AppServiceMain {
                 logger.error("Terminating due to initialization failure of monitoring service.", e);
                 system.terminate();
             }
+        } else {
+            throw new IllegalArgumentException(
+                    "Invalid service name=" + args[0] + "; expected: {warehousesvc|monitoringsvc}");
         }
     }
 
@@ -73,9 +76,9 @@ public class AppServiceMain {
     }
 
     private static ActorRef createTopicSubscriber(ActorSystem system, SensorType sensorType) {
-        ActorRef temperatureSensorMonitorRef = system.actorOf(MqttTopicSubscriberActor.props(sensorType),
+        ActorRef subscriber = system.actorOf(MqttTopicSubscriberActor.props(sensorType),
                 String.format("%sMqttTopicSubscriber", sensorType.getValue()));
-        return temperatureSensorMonitorRef;
+        return subscriber;
     }
 
 }
