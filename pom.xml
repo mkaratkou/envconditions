@@ -6,7 +6,7 @@
   <artifactId>envconditions</artifactId>
   <version>1.0</version>
   <packaging>jar</packaging>
-  <name>warehouse</name>
+  <name>envconditions</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

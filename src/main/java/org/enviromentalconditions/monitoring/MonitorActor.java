@@ -57,7 +57,6 @@ public class MonitorActor extends AbstractActor {
 
     private void handleMessage(MqttMessage mqttMessage) {
         SensorReading reading = MqttUtils.extractMessagePayload(mqttMessage, SensorReading.class);
-        ActorContext context = getContext();
 
         log.debug("Values received by {} sensorId={}, sensorValue={}", sensorType.getValue(), reading.sensorId(),
                 reading.value());
