@@ -1,14 +1,15 @@
 
+Run applications:
+```shell
+docker-compose up -d
+```
+
 Build applications locally:
 ```shell
 mvn clean package
 docker build . -t mkaratkou/envconditions
 ```
 
-Run applications:
-```shell
-docker-compose up -d
-```
 
 To stop the apps run:
 ```shell
