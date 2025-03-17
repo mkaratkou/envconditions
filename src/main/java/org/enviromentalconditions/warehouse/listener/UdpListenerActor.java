@@ -39,6 +39,10 @@ public class UdpListenerActor extends AbstractActor {
             String message = String.format("%s; timestamp=%d", utf8String, System.currentTimeMillis());
             delegateRef.tell(message, getSelf());
         }).matchEquals(UdpMessage.unbind(), message -> socket.tell(message, getSelf()))
-                .match(Udp.Unbound.class, message -> getContext().stop(getSelf())).build();
+                .match(Udp.Unbound.class, message -> {
+                    ActorContext context = getContext();
+                    context.stop(delegateRef);
+                    context.stop(getSelf());
+                } ).build();
     }
 }
