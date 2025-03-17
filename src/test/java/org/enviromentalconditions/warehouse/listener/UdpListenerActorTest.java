@@ -19,11 +19,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class UdpListenerActorTest {
 
-    
     private static final int UDP_PORT = 3344;
     private static final String UDP_HOST = "localhost";
-    
-    
+
     static ActorSystem system;
 
     @BeforeClass
@@ -44,9 +42,8 @@ public class UdpListenerActorTest {
                 final TestKit delegateProbe = new TestKit(system);
                 final TestKit mockSocket = new TestKit(system);
 
-                final ActorRef udpListener = system.actorOf(
-                        UdpListenerActor.props("localhost", UDP_PORT, delegateProbe.getRef())
-                );
+                final ActorRef udpListener = system
+                        .actorOf(UdpListenerActor.props("localhost", UDP_PORT, delegateProbe.getRef()));
 
                 udpListener.tell(new Udp.Bound(new InetSocketAddress(UDP_HOST, UDP_PORT)), mockSocket.getRef());
 
@@ -73,15 +70,14 @@ public class UdpListenerActorTest {
                 final ActorRef delegateRef = delegateProbe.getRef();
                 watch(delegateRef);
 
-                final ActorRef udpListener = system.actorOf(
-                        UdpListenerActor.props(UDP_HOST, UDP_PORT, delegateRef)
-                );
+                final ActorRef udpListener = system.actorOf(UdpListenerActor.props(UDP_HOST, UDP_PORT, delegateRef));
                 watch(udpListener);
                 final TestKit mockSocket = new TestKit(system);
 
                 udpListener.tell(new Udp.Bound(new InetSocketAddress(UDP_HOST, UDP_PORT)), mockSocket.getRef());
                 udpListener.tell(UdpMessage.unbind(), getRef());
-                udpListener.tell(new Udp.Unbound(){}, mockSocket.getRef());
+                udpListener.tell(new Udp.Unbound() {
+                }, mockSocket.getRef());
 
                 expectTerminated(Duration.ofSeconds(3), delegateRef);
                 expectTerminated(Duration.ofSeconds(3), udpListener);

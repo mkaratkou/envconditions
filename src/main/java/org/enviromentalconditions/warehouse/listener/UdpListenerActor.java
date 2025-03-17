@@ -43,6 +43,6 @@ public class UdpListenerActor extends AbstractActor {
                     ActorContext context = getContext();
                     context.stop(delegateRef);
                     context.stop(getSelf());
-                } ).build();
+                }).build();
     }
 }

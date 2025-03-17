@@ -45,9 +45,7 @@ public class SensorManager extends AbstractActor {
 
     @Override
     public Receive createReceive() {
-        return receiveBuilder()
-                .match(String.class, this::sendMessage)
-                .match(SensorTerminated.class, terminated -> {
+        return receiveBuilder().match(String.class, this::sendMessage).match(SensorTerminated.class, terminated -> {
             log.debug("Ref of Sensor actor={} terminated and removed from SensorManager. SensorId={}",
                     terminated.sensorActorRef, terminated.sensorId);
             sensorIdToSensorActorRefMap.remove(terminated.sensorId);

@@ -41,18 +41,14 @@ public class SensorManagerTest {
             {
                 final TestProbe sensorProbe = new TestProbe(system);
 
-                final ActorRef sensorManager = system.actorOf(
-                        Props.create(
-                                SensorManager.class,
-                                () -> new SensorManager(SensorType.TEMPERATURE) {
-                                    @Override
-                                    protected ActorRef createSensorActor(String sensorId, SensorType type) {
-                                        // Return our test probe instead of creating a real SensorActor
-                                        return sensorProbe.ref();
-                                    }
-                                }
-                        )
-                );
+                final ActorRef sensorManager = system
+                        .actorOf(Props.create(SensorManager.class, () -> new SensorManager(SensorType.TEMPERATURE) {
+                            @Override
+                            protected ActorRef createSensorActor(String sensorId, SensorType type) {
+                                // Return our test probe instead of creating a real SensorActor
+                                return sensorProbe.ref();
+                            }
+                        }));
                 long timestampMillis = System.currentTimeMillis();
                 sensorManager.tell("sensor_id=t1; value=80; timestamp=" + timestampMillis, getRef());
 
@@ -67,9 +63,8 @@ public class SensorManagerTest {
 
     @Test
     public void testInvalidFormatMessage() {
-        final TestActorRef<SensorManager> testRef = TestActorRef.create(
-                system, Props.create(SensorManager.class, SensorType.TEMPERATURE)
-        );
+        final TestActorRef<SensorManager> testRef = TestActorRef.create(system,
+                Props.create(SensorManager.class, SensorType.TEMPERATURE));
         String invalidFormatMessage = "some-unparseable-format";
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("Invalid sensor value: " + invalidFormatMessage);
@@ -83,23 +78,18 @@ public class SensorManagerTest {
             {
                 final TestProbe sensorProbe = new TestProbe(system);
 
-                final ActorRef sensorManager = system.actorOf(
-                        Props.create(
-                                SensorManager.class,
-                                () -> new SensorManager(SensorType.TEMPERATURE) {
-                                    @Override
-                                    protected ActorRef createSensorActor(String sensorId, SensorType type) {
-                                        // Return our test probe instead of creating a real SensorActor
-                                        return sensorProbe.ref();
-                                    }
-                                }
-                        )
-                );
+                final ActorRef sensorManager = system
+                        .actorOf(Props.create(SensorManager.class, () -> new SensorManager(SensorType.TEMPERATURE) {
+                            @Override
+                            protected ActorRef createSensorActor(String sensorId, SensorType type) {
+                                // Return our test probe instead of creating a real SensorActor
+                                return sensorProbe.ref();
+                            }
+                        }));
                 long timestampMillis = System.currentTimeMillis();
                 sensorManager.tell("sensor_id=t1; value=80; timestamp=" + timestampMillis, getRef());
 
-                SensorManager.SensorTerminated terminated =
-                        new SensorManager.SensorTerminated(sensorProbe.ref(), "t1");
+                SensorManager.SensorTerminated terminated = new SensorManager.SensorTerminated(sensorProbe.ref(), "t1");
 
                 sensorManager.tell(terminated, getRef());
                 expectNoMessage();
@@ -114,22 +104,18 @@ public class SensorManagerTest {
                 final TestProbe sensorProbeT1 = new TestProbe(system);
                 final TestProbe sensorProbeT2 = new TestProbe(system);
 
-                final ActorRef sensorManager = system.actorOf(
-                        Props.create(
-                                SensorManager.class,
-                                () -> new SensorManager(SensorType.TEMPERATURE) {
-                                    @Override
-                                    protected ActorRef createSensorActor(String sensorId, SensorType type) {
-                                        if ("t1".equals(sensorId)) {
-                                            return sensorProbeT1.ref();
-                                        } else if ("t2".equals(sensorId)) {
-                                            return sensorProbeT2.ref();
-                                        }
-                                        throw new IllegalArgumentException("Invalid sensor ID: " + sensorId);
-                                    }
+                final ActorRef sensorManager = system
+                        .actorOf(Props.create(SensorManager.class, () -> new SensorManager(SensorType.TEMPERATURE) {
+                            @Override
+                            protected ActorRef createSensorActor(String sensorId, SensorType type) {
+                                if ("t1".equals(sensorId)) {
+                                    return sensorProbeT1.ref();
+                                } else if ("t2".equals(sensorId)) {
+                                    return sensorProbeT2.ref();
                                 }
-                        )
-                );
+                                throw new IllegalArgumentException("Invalid sensor ID: " + sensorId);
+                            }
+                        }));
 
                 String messageOne = "sensor_id=t1; value=23.5; timestamp=1617283945123";
                 String messageTwo = "sensor_id=t1; value=24.0; timestamp=1617283945456";
