@@ -87,6 +87,12 @@
       <artifactId>akka-testkit_${scala.binary.version}</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.typesafe.akka</groupId>
+      <artifactId>akka-actor-testkit-typed_${scala.binary.version}</artifactId>
+      <version>2.10.2</version>
+      <scope>test</scope>
+    </dependency>
 
   </dependencies>
 
