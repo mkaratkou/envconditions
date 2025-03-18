@@ -2,7 +2,6 @@ package org.enviromentalconditions.warehouse.sensor;
 
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
-import akka.actor.Terminated;
 import akka.actor.typed.PostStop;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -60,7 +59,7 @@ public class SensorManager extends AbstractActor {
         String sensorId = valueMatcher.group(SENSOR_ID_GROUP);
         String value = valueMatcher.group(VALUE_GROUP);
         long timestamp = Long.parseLong(valueMatcher.group(TIMESTAMP_GROUP));
-        SensorReading reading = new SensorReading(sensorId, timestamp, sensorType, Float.valueOf(value));
+        SensorReading reading = new SensorReading(sensorId, sensorType, Float.valueOf(value), timestamp);
 
         ActorRef sensorRef = sensorIdToSensorActorRefMap.computeIfAbsent(sensorId, id -> {
             ActorRef r = createSensorActor(id, sensorType);
@@ -71,8 +70,7 @@ public class SensorManager extends AbstractActor {
     }
 
     protected ActorRef createSensorActor(String sensorId, SensorType sensorType) {
-        ActorRef r = getContext().actorOf(SensorActor.props(sensorId, sensorType),
+        return getContext().actorOf(SensorActor.props(sensorId, sensorType),
                 String.format("%Sensor-%s", sensorType.getValue(), sensorId));
-        return r;
     }
 }

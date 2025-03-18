@@ -12,12 +12,14 @@ import utils.MqttUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 public class MonitorActor extends AbstractActor {
 
     private final SensorType sensorType;
     private final float threshold;
     private final Map<String, ActorRef> sensorIdToAlertSenderRefMap = new HashMap<>();
+    private final BiFunction<SensorType, String, ActorRef> alertSenderFactory;
 
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
@@ -28,6 +30,18 @@ public class MonitorActor extends AbstractActor {
     public MonitorActor(SensorType sensorType, float threshold) {
         this.sensorType = sensorType;
         this.threshold = threshold;
+        this.alertSenderFactory = createDefaultAlertSenderFactory();
+    }
+
+    private BiFunction<SensorType, String, ActorRef> createDefaultAlertSenderFactory() {
+        return (type, sensorId) -> getContext().actorOf(AlertSenderActor.props(),
+                String.format("%sAlertSenderActor-%s", type.getValue(), sensorId));
+    }
+
+    MonitorActor(SensorType sensorType, float threshold, BiFunction<SensorType, String, ActorRef> alertSenderFactory) {
+        this.sensorType = sensorType;
+        this.threshold = threshold;
+        this.alertSenderFactory = alertSenderFactory;
     }
 
     public interface Command {
@@ -65,8 +79,7 @@ public class MonitorActor extends AbstractActor {
             log.debug("Value={} has exceeded threshold={}", reading.value(), threshold);
             ActorRef actorRef = sensorIdToAlertSenderRefMap.computeIfAbsent(reading.sensorId(), sensorId -> {
                 log.debug("Finding actor for sensorId={} ", sensorId);
-                ActorRef r = getContext().actorOf(AlertSenderActor.props(),
-                        String.format("%sAlertSenderActor-%s", sensorType.getValue(), sensorId));
+                ActorRef r = alertSenderFactory.apply(sensorType, sensorId);
                 getContext().watchWith(r, new SenderTerminated(r, sensorId));
                 return r;
             });

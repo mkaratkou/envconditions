@@ -6,10 +6,7 @@ import akka.actor.Props;
 import akka.testkit.TestActorRef;
 import akka.testkit.TestProbe;
 import akka.testkit.javadsl.TestKit;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.ExpectedException;
 import scala.concurrent.duration.FiniteDuration;
 
@@ -31,9 +28,6 @@ public class SensorManagerTest {
         TestKit.shutdownActorSystem(system);
         system = null;
     }
-
-    @Rule
-    public final ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void testSendValidSensorMessage() {
@@ -66,14 +60,13 @@ public class SensorManagerTest {
         final TestActorRef<SensorManager> testRef = TestActorRef.create(system,
                 Props.create(SensorManager.class, SensorType.TEMPERATURE));
         String invalidFormatMessage = "some-unparseable-format";
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Invalid sensor value: " + invalidFormatMessage);
-
-        testRef.receive(invalidFormatMessage);
+        IllegalArgumentException exception = Assert.assertThrows(IllegalArgumentException.class,
+                () -> testRef.receive(invalidFormatMessage));
+        assertThat(exception.getMessage()).isEqualTo(invalidFormatMessage);
     }
 
     @Test
-    public void testSensorTerminated() throws IllegalAccessException {
+    public void testSensorTerminated() {
         new TestKit(system) {
             {
                 final TestProbe sensorProbe = new TestProbe(system);
@@ -117,8 +110,8 @@ public class SensorManagerTest {
                             }
                         }));
 
-                String messageOne = "sensor_id=t1; value=23.5; timestamp=1617283945123";
-                String messageTwo = "sensor_id=t1; value=24.0; timestamp=1617283945456";
+                String messageOne = "sensor_id=t1; value=23; timestamp=1617283945123";
+                String messageTwo = "sensor_id=t1; value=24; timestamp=1617283945456";
 
                 sensorManager.tell(messageOne, getRef());
                 sensorManager.tell(messageTwo, getRef());

@@ -3,7 +3,6 @@ package org.enviromentalconditions.warehouse.listener;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.io.Udp;
-import akka.io.Udp.Unbound;
 import akka.io.UdpMessage;
 import akka.testkit.javadsl.TestKit;
 import akka.util.ByteString;
@@ -43,7 +42,7 @@ public class UdpListenerActorTest {
                 final TestKit mockSocket = new TestKit(system);
 
                 final ActorRef udpListener = system
-                        .actorOf(UdpListenerActor.props("localhost", UDP_PORT, delegateProbe.getRef()));
+                        .actorOf(UdpListenerActor.props(UDP_HOST, UDP_PORT, delegateProbe.getRef()));
 
                 udpListener.tell(new Udp.Bound(new InetSocketAddress(UDP_HOST, UDP_PORT)), mockSocket.getRef());
 

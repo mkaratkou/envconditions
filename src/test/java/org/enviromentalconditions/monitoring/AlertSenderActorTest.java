@@ -48,7 +48,7 @@ public class AlertSenderActorTest {
                 final float value = 35.1f;
                 final long timestamp = System.currentTimeMillis();
 
-                SensorReading reading = new SensorReading(sensorId, timestamp, sensorType, value);
+                SensorReading reading = new SensorReading(sensorId, sensorType, value, timestamp);
 
                 // Use EventFilter to verify that a warning is logged
                 EventFilter.warning(null, // message - use null to rely on pattern matching instead
