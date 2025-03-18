@@ -7,7 +7,6 @@ import akka.testkit.TestActorRef;
 import akka.testkit.TestProbe;
 import akka.testkit.javadsl.TestKit;
 import org.junit.*;
-import org.junit.rules.ExpectedException;
 import scala.concurrent.duration.FiniteDuration;
 
 import java.util.concurrent.TimeUnit;
@@ -62,7 +61,7 @@ public class SensorManagerTest {
         String invalidFormatMessage = "some-unparseable-format";
         IllegalArgumentException exception = Assert.assertThrows(IllegalArgumentException.class,
                 () -> testRef.receive(invalidFormatMessage));
-        assertThat(exception.getMessage()).isEqualTo(invalidFormatMessage);
+        assertThat(exception.getMessage()).isEqualTo("Invalid sensor value: " + invalidFormatMessage);
     }
 
     @Test
